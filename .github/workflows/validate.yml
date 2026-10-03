@@ -17,6 +17,7 @@ jobs:
       - name: Validate every mod
         run: |
           for d in mods/*/; do
+            [ -d "$d" ] || continue  # no mods yet: the glob stays literal
             echo "::group::$d"
             claude plugin validate "$d"
             echo "::endgroup::"

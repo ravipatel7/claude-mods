@@ -10,7 +10,7 @@
     {
       "name": "usage-bar",
       "source": "./mods/usage-bar",
-      "description": "Band above the prompt showing 5h/7d rate limits with pace markers, session tokens and cost"
+      "description": "5h/7d rate limits with pace markers, session tokens and cost: above the prompt, or in a /usage pane"
     }
   ]
 }

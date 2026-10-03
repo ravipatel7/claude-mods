@@ -1,5 +1,5 @@
 import { atom, read, update } from 'claude-code'
-import type { Register } from 'claude-code'
+import type { ElementTable, Register } from 'claude-code'
 
 import type { Limit, Tokens } from '../types'
 
@@ -126,8 +126,11 @@ const tintCss = (i: 0 | 2) =>
 // The whole row as one SVG: with no width the surface scales it to fit, so it never wraps.
 // The whole row as one SVG sized to `avail` px: bars stretch first (up to BAR_MAX),
 // the rest spreads into the gaps between clusters. Narrower than natural, it scales down.
+const naturalW = (pills: Pill[]) =>
+  pills.reduce((a, p) => a + pillSvg(p.tint, p.pieces, 0).width, 0) + PILL_GAP * (pills.length - 1)
+
 export const rowSvg = (pills: Pill[], avail = 0) => {
-  const natural = pills.reduce((a, p) => a + pillSvg(p.tint, p.pieces, 0).width, 0) + PILL_GAP * (pills.length - 1)
+  const natural = naturalW(pills)
   let extra = Math.max(0, avail - natural)
   const bars = pills.flatMap(p => p.pieces.filter(x => x.t === 'bar'))
   const grow = bars.length ? Math.min(extra / bars.length, BAR_MAX - BAR_W) : 0
@@ -164,6 +167,51 @@ const termBar = (pct: number) => {
   return ['━'.repeat(n), '━'.repeat(8 - n)]
 }
 
+const PANE = 'usage-bar'
+const openPane = ($: { ui: { open: (a: { id: string; title: string }) => Promise<unknown> } }) =>
+  $.ui.open({ id: PANE, title: 'Usage' })
+
+type TermEls = ElementTable<'terminal'>
+const termTree = ({ Box, Text }: TermEls, pills: Pill[]) => (
+  <Box flexWrap="wrap" columnGap={3}>
+    {pills.map(p => (
+      <Box key={p.key}>
+        <Text>
+          {p.pieces.map(x => {
+            if (x.t === 'icon') return <Text color={TERM_COLOR[p.tint]}>{TERM_ICON[x.name]} </Text>
+            if (x.t === 'text') return <Text bold={x.bold} dimColor={x.muted}>{x.s} </Text>
+            if (x.t === 'sep') return <Text dimColor>· </Text>
+            const [full, empty] = termBar(x.pct)
+            return <Text><Text color={TERM_COLOR[p.tint]}>{full}</Text><Text dimColor>{empty}</Text> </Text>
+          })}
+        </Text>
+      </Box>
+    ))}
+  </Box>
+)
+
+// One row when it fits (or shrinks <15%); otherwise limits on top, tokens + cost below.
+type SvgEls = ElementTable<'desktop' | 'vscode' | 'mobile'>
+const svgTree = ({ Box, Svg }: SvgEls, pills: Pill[], columns: number) => {
+  const avail = Math.floor(columns * CELL_PX)
+  // Lay out at `layout` px, draw at `avail`: every row then shares one scale.
+  const row = (ps: Pill[], layout: number) =>
+    <Svg source={rowSvg(ps, layout)} alt={ps.map(p => p.alt).join('; ')} width={avail} />
+  const split = pills.findIndex(p => p.group)
+  if (split <= 0 || naturalW(pills) * 0.85 <= avail) return row(pills, avail)
+  const [top, bottom] = [pills.slice(0, split), pills.slice(split)]
+  const layout = Math.max(avail, naturalW(top), naturalW(bottom))
+  return (
+    <Box flexDirection="column" gap={1}>
+      {row(top, layout)}
+      {row(bottom, layout)}
+    </Box>
+  )
+}
+
+const currentPills = async ($: Parameters<typeof read>[0]) =>
+  buildPills(await read($, tokens), await read($, limits), await read($, usd), await read($, now))
+
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     const u = await $.session.usage()
@@ -176,7 +224,20 @@ export const register: Register = on => {
     await tick()
     // ponytail: minute tick only drives the reset countdown; finer is wasted redraws.
     $.clock.every(60_000, () => void tick())
+    await $.command.register({ name: 'usage', description: 'Show rate limits, tokens and cost in a pane' })
+    // VS Code has no band above the prompt, so the pane stands in for it there.
+    if ((await $.session.surfaces()).includes('vscode')) void openPane($)
     return next(e)
+  })
+
+  on('session.attach', { surface: 'vscode' }, ($, e, next) => {
+    void openPane($)
+    return next(e)
+  })
+
+  on('command.run', { command: 'usage' }, async $ => {
+    await openPane($)
+    return { text: 'Usage pane opened.' }
   })
 
   on('session.measure', async ($, e, next) => {
@@ -199,31 +260,16 @@ export const register: Register = on => {
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (e.props.hasSurvey) return next(e)
-    const pills = buildPills(await read($, tokens), await read($, limits), await read($, usd), await read($, now))
+    const pills = await currentPills($)
+    return e.surface === 'terminal'
+      ? termTree($.ui.resolve(e), pills)
+      : svgTree($.ui.resolve(e), pills, e.props.bodyColumns)
+  })
 
-    if (e.surface === 'terminal') {
-      const { Box, Text } = $.ui.resolve(e)
-      return (
-        <Box flexWrap="wrap" columnGap={3}>
-          {pills.map(p => (
-            <Box key={p.key}>
-              <Text>
-                {p.pieces.map(x => {
-                  if (x.t === 'icon') return <Text color={TERM_COLOR[p.tint]}>{TERM_ICON[x.name]} </Text>
-                  if (x.t === 'text') return <Text bold={x.bold} dimColor={x.muted}>{x.s} </Text>
-                  if (x.t === 'sep') return <Text dimColor>· </Text>
-                  const [full, empty] = termBar(x.pct)
-                  return <Text><Text color={TERM_COLOR[p.tint]}>{full}</Text><Text dimColor>{empty}</Text> </Text>
-                })}
-              </Text>
-            </Box>
-          ))}
-        </Box>
-      )
-    }
-
-    const { Svg } = $.ui.resolve(e)
-    const avail = Math.floor(e.props.bodyColumns * CELL_PX)
-    return <Svg source={rowSvg(pills, avail)} alt={pills.map(p => p.alt).join('; ')} width={avail} />
+  on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
+    const pills = await currentPills($)
+    return e.surface === 'terminal'
+      ? termTree($.ui.resolve(e), pills)
+      : svgTree($.ui.resolve(e), pills, e.props.bodyColumns)
   })
 }
