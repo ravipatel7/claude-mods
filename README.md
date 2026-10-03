@@ -4,9 +4,9 @@ Mods for [Claude Code](https://claude.com/claude-code): small plugins built on C
 
 ## Mods
 
-| Mod | What it does | Terminal | Desktop app | VS Code panel |
-| --- | --- | :---: | :---: | :---: |
-| [usage-bar](mods/usage-bar) | Pills above the prompt: 5h / 7d rate limits with pace markers, session tokens, cost | ✅ | ✅ | ❌ |
+| Mod | What it does | Terminal | Desktop app | VS Code panel | Mobile app |
+| --- | --- | :---: | :---: | :---: | :---: |
+| [usage-bar](mods/usage-bar) | 5h / 7d rate limits with pace markers, session tokens, cost | ✅ | ✅ | ✅ pane | ⚠️ text via `/usage` |
 
 Each mod's README covers what it does, where it works, and how to install, update and remove it.
 
@@ -25,7 +25,8 @@ Or from inside a terminal session: `/plugin marketplace add ravipatel7/claude-mo
 | --- | --- |
 | Terminal (`claude`), including the integrated terminal in VS Code / JetBrains | Install as above |
 | Claude desktop app, Code tab | Install as above from any shell; new Code sessions load it |
-| VS Code extension panel | Same install; a mod only draws there if its README marks VS Code ✅ |
+| VS Code extension panel | Same install; VS Code is a remote surface of the Claude Code running on your machine. Mods draw there only in panes and transcript rows, not the band above the prompt |
+| Claude mobile app | Nothing to install on the phone. Over Remote Control it mirrors transcript text only, so mods show there only as text (e.g. a command's output) |
 | Try without installing | `claude --plugin-dir /path/to/claude-mods/mods/<mod-name>` |
 
 ## Update / remove
