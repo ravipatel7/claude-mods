@@ -1,0 +1,4 @@
+.DS_Store
+node_modules/
+# written by /plugin-types; each mod's tsconfig.json extends it
+.claude-plugin/types/
