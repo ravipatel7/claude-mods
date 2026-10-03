@@ -167,6 +167,22 @@ const termBar = (pct: number) => {
   return ['━'.repeat(n), '━'.repeat(8 - n)]
 }
 
+// Markdown for surfaces that show the row's text, and for the model.
+export const summary = (t: Tokens, ls: Limit[], cost: number | null, at: number) => {
+  const lines = WINDOWS.flatMap(w => {
+    const l = ls.find(x => x.kind === w.kind)
+    if (!l) return []
+    const left = l.resetsAt && at ? Date.parse(l.resetsAt) - at : NaN
+    if (Number.isNaN(left)) return [`**${w.label}** ${Math.round(l.percentUsed)}%`]
+    const pace = Math.round(Math.min(1, Math.max(0, 1 - left / w.ms)) * 100)
+    const flag = l.percentUsed > pace ? ' · ahead of pace' : ''
+    return [`**${w.label}** ${Math.round(l.percentUsed)}% used · ${pace}% of window elapsed${flag} · resets in ${fmtLeft(left)}`]
+  })
+  const tok = `↑ ${fmtTokens(t.input)} in · ↓ ${fmtTokens(t.output)} out · ${fmtTokens(t.cacheRead)} cached`
+  lines.push(cost === null ? tok : `${tok} · **$${cost.toFixed(2)}**`)
+  return lines.join('  \n')
+}
+
 const PANE = 'usage-bar'
 const openPane = ($: { ui: { open: (a: { id: string; title: string }) => Promise<unknown> } }) =>
   $.ui.open({ id: PANE, title: 'Usage' })
@@ -235,11 +251,11 @@ export const register: Register = on => {
     return next(e)
   })
 
-  // The output row is drawn on every surface (phones place no panes), so /usage
-  // draws the live pills there; the pane is extra where the surface seats one.
+  // Surfaces that draw mod UI replace the row's text with live pills; the rest
+  // (Remote Control on a phone mirrors text only) show the markdown summary.
   on('command.run', { command: 'usage' }, async $ => {
     void openPane($)
-    return { text: 'Rate limits, tokens and cost for this session (usage-bar).' }
+    return { text: summary(await read($, tokens), await read($, limits), await read($, usd), await read($, now)) }
   })
 
   on('ui.render', { component: 'CommandOutput', props: { command: 'usage' } }, async ($, e) => {

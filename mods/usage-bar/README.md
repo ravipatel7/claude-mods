@@ -23,10 +23,10 @@ Rate-limit pills appear only on a Claude subscription (Pro / Max); the cost pill
 | Claude desktop app, Code tab | ✅ | Band above the prompt: SVG pills, colors follow the app's light/dark theme |
 | Terminal (CLI), incl. VS Code / JetBrains integrated terminal | ✅ | Band above the prompt: text with Unicode glyphs, colored by your `/theme` |
 | VS Code extension panel | ✅ | **Pane**, opened automatically when VS Code joins the session (the extension has no band above the prompt) |
-| Claude mobile app | ✅ | Run `/usage`: the live pills draw right in the command's output row (the app places no panes). Stacks into two rows on a narrow screen |
-| Any surface | ✅ | `/usage` draws the pills in its output row, and also opens the pane where the surface seats one |
+| Claude mobile app (Remote Control) | ⚠️ text | Run `/usage`: shows a text summary (% used, pace, reset time, tokens, cost). A phone following a session over Remote Control mirrors the transcript as text and never asks mods to draw |
+| Any surface | ✅ | `/usage` prints the summary; surfaces that draw mod UI (desktop, VS Code) replace it with live pills and also open the pane |
 
-The mod runs inside Claude Code on the machine where it's installed. VS Code and the mobile app are *remote surfaces*: they ask that Claude Code what to draw, so there is nothing to install in the extension or on the phone. On mobile, that means sessions driven from your computer (e.g. Remote Control); whether cloud sessions load your installed mods is untested.
+The mod runs inside Claude Code on the machine where it's installed. The desktop app and VS Code are *remote surfaces*: they ask that Claude Code what to draw, so there is nothing to install in the extension. Tested 2026-10-03: a phone following a desktop session over Remote Control does not attach as a drawing surface (it only mirrors transcript text), so `/usage` falls back to its text summary there.
 
 ## Install
 
