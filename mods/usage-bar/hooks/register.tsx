@@ -235,9 +235,19 @@ export const register: Register = on => {
     return next(e)
   })
 
+  // The output row is drawn on every surface (phones place no panes), so /usage
+  // draws the live pills there; the pane is extra where the surface seats one.
   on('command.run', { command: 'usage' }, async $ => {
-    await openPane($)
-    return { text: 'Usage pane opened.' }
+    void openPane($)
+    return { text: 'Rate limits, tokens and cost for this session (usage-bar).' }
+  })
+
+  on('ui.render', { component: 'CommandOutput', props: { command: 'usage' } }, async ($, e) => {
+    const pills = await currentPills($)
+    const columns = Math.max(20, (e.viewport?.columns ?? 80) - 4)
+    return e.surface === 'terminal'
+      ? termTree($.ui.resolve(e), pills)
+      : svgTree($.ui.resolve(e), pills, columns)
   })
 
   on('session.measure', async ($, e, next) => {

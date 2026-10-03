@@ -23,8 +23,8 @@ Rate-limit pills appear only on a Claude subscription (Pro / Max); the cost pill
 | Claude desktop app, Code tab | ✅ | Band above the prompt: SVG pills, colors follow the app's light/dark theme |
 | Terminal (CLI), incl. VS Code / JetBrains integrated terminal | ✅ | Band above the prompt: text with Unicode glyphs, colored by your `/theme` |
 | VS Code extension panel | ✅ | **Pane**, opened automatically when VS Code joins the session (the extension has no band above the prompt) |
-| Claude mobile app | ✅ | **Pane** on demand: run `/usage`. Stacks into two rows on a narrow screen |
-| Any surface | ✅ | `/usage` opens the pane, e.g. to keep it docked beside the transcript |
+| Claude mobile app | ✅ | Run `/usage`: the live pills draw right in the command's output row (the app places no panes). Stacks into two rows on a narrow screen |
+| Any surface | ✅ | `/usage` draws the pills in its output row, and also opens the pane where the surface seats one |
 
 The mod runs inside Claude Code on the machine where it's installed. VS Code and the mobile app are *remote surfaces*: they ask that Claude Code what to draw, so there is nothing to install in the extension or on the phone. On mobile, that means sessions driven from your computer (e.g. Remote Control); whether cloud sessions load your installed mods is untested.
 
@@ -72,7 +72,7 @@ Hide it for a moment without uninstalling: collapse the band with `ctrl+x ctrl+a
 - `session.measure`: Claude Code pushes fresh rate-limit and cost figures after each turn.
 - `turn.complete` adds each turn's token usage (subagents included) to the running totals.
 - `ui.render` on `AbovePrompt` draws the row and steps aside while a survey uses the band.
-- `ui.render` on the `usage-bar` **Pane** draws the same row; `/usage` (a registered command) opens it, and `session.start` / `session.attach` open it automatically when a VS Code client is attached.
+- `ui.render` on the `usage-bar` **Pane** draws the same row; `/usage` (a registered command) opens it and draws the same live row in its own output row (`CommandOutput`, raised on every surface), and `session.start` / `session.attach` open it automatically when a VS Code client is attached.
 
 On the desktop the row is one SVG sized to the band: the usage bars stretch first, leftover space separates the limits / tokens / cost groups, and on a narrow band the row scales down rather than wrapping. If it would shrink by more than 15% (a phone), it stacks into two rows instead: limits on top, tokens and cost below, both rows at the same scale. Colors are CSS variables switched by `prefers-color-scheme`. Icons are from [Lucide](https://lucide.dev) (ISC license).
 

@@ -6,7 +6,7 @@ Mods for [Claude Code](https://claude.com/claude-code): small plugins built on C
 
 | Mod | What it does | Terminal | Desktop app | VS Code panel | Mobile app |
 | --- | --- | :---: | :---: | :---: | :---: |
-| [usage-bar](mods/usage-bar) | 5h / 7d rate limits with pace markers, session tokens, cost | ✅ | ✅ | ✅ pane | ✅ `/usage` |
+| [usage-bar](mods/usage-bar) | 5h / 7d rate limits with pace markers, session tokens, cost | ✅ | ✅ | ✅ pane | ✅ via `/usage` |
 
 Each mod's README covers what it does, where it works, and how to install, update and remove it.
 
