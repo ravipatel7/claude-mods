@@ -14,11 +14,13 @@ jobs:
       - run: npm install -g @anthropic-ai/claude-code
       - name: Validate marketplace
         run: claude plugin validate .
-      - name: Validate every mod
+      - name: Validate every mod and theme
         run: |
-          for d in mods/*/; do
+          for d in mods/*/ themes/*/; do
             [ -d "$d" ] || continue  # no mods yet: the glob stays literal
             echo "::group::$d"
             claude plugin validate "$d"
             echo "::endgroup::"
           done
+      - name: Check theme palettes paint on Desktop
+        run: node scripts/check-themes.mjs

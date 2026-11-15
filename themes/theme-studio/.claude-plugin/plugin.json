@@ -1,0 +1,23 @@
+{
+  "name": "theme-studio",
+  "version": "0.1.0",
+  "author": {
+    "name": "Ravi Patel"
+  },
+  "description": "Four premium looks (Alpine, Seaside, Glass, Plaster): high-res photographic, painted, abstract and minimal backdrops, each with day and night versions that switch by local time; pick with /look",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "dayStart": {
+      "type": "number",
+      "title": "Light from (hour)",
+      "description": "Local hour (0-23) when auto mode switches to the light version",
+      "default": 7
+    },
+    "nightStart": {
+      "type": "number",
+      "title": "Dark from (hour)",
+      "description": "Local hour (0-23) when auto mode switches to the dark version",
+      "default": 19
+    }
+  }
+}

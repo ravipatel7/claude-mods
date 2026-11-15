@@ -1,5 +1,5 @@
 import { atom, read, update } from 'claude-code'
-import type { ElementTable, Register } from 'claude-code'
+import type { ElementTable, EngineInterface, Register } from 'claude-code'
 
 import type { Limit, Tokens } from '../types'
 
@@ -228,6 +228,37 @@ const svgTree = ({ Box, Svg }: SvgEls, pills: Pill[], columns: number) => {
 const currentPills = async ($: Parameters<typeof read>[0]) =>
   buildPills(await read($, tokens), await read($, limits), await read($, usd), await read($, now))
 
+// With the theme-studio mod installed, a row of two dropdowns under the pills picks its
+// look and mode through its /look command. Without it, the value is unset and no row draws.
+const STUDIO = { plugin: 'theme-studio', key: 'current' } as const
+const themePicker = async ($: EngineInterface, { Box, Select }: SvgEls) => {
+  const { value: c } = await $.state.get(STUDIO)
+  if (!c) return null
+  const look = (v: string) => void $.command.run({ command: 'look', args: v })
+  return (
+    <Box flexDirection="row" gap={2}>
+      <Select key="theme-look" label="Theme" value={c.look} options={c.looks.map(l => ({ value: l.id, label: l.label }))} onSelect={look} />
+      <Select
+        key="theme-mode"
+        label={c.variant === 'day' ? `☀ ${c.variantLabel}` : `☾ ${c.variantLabel}`}
+        value={c.mode}
+        options={[
+          { value: 'auto', label: `Auto (light ${c.dayStart}:00–${c.nightStart}:00)` },
+          { value: 'light', label: 'Always light' },
+          { value: 'dark', label: 'Always dark' },
+        ]}
+        onSelect={look}
+      />
+    </Box>
+  )
+}
+
+const withPicker = async ($: EngineInterface, els: SvgEls, pills: Pill[], columns: number) => {
+  const picker = await themePicker($, els)
+  const row = svgTree(els, pills, columns)
+  return picker ? <els.Box flexDirection="column" gap={1}>{row}{picker}</els.Box> : row
+}
+
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     const u = await $.session.usage()
@@ -289,13 +320,13 @@ export const register: Register = on => {
     const pills = await currentPills($)
     return e.surface === 'terminal'
       ? termTree($.ui.resolve(e), pills)
-      : svgTree($.ui.resolve(e), pills, e.props.bodyColumns)
+      : withPicker($, $.ui.resolve(e), pills, e.props.bodyColumns)
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const pills = await currentPills($)
     return e.surface === 'terminal'
       ? termTree($.ui.resolve(e), pills)
-      : svgTree($.ui.resolve(e), pills, e.props.bodyColumns)
+      : withPicker($, $.ui.resolve(e), pills, e.props.bodyColumns)
   })
 }
