@@ -7,7 +7,7 @@ export type StudioCurrent = {
   label: string
   variant: 'day' | 'night'
   variantLabel: string
-  mode: 'auto' | 'light' | 'dark'
+  mode: 'auto' | 'light' | 'dark' | 'off'
   looks: { id: string; label: string }[]
   dayStart: number
   nightStart: number

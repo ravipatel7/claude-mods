@@ -1,4 +1,4 @@
-export type StudioMode = 'auto' | 'light' | 'dark'
+export type StudioMode = 'auto' | 'light' | 'dark' | 'off'
 
 /** What theme-studio publishes for other mods (usage-bar's picker) to read. */
 export type StudioCurrent = {

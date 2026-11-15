@@ -16,6 +16,7 @@ The art was AI-generated for this mod and is drawn as a **soft-focus scene**: a 
 - `/look` opens the **Looks** pane with two dropdowns: look and mode.
 - `/look alpine`, `/look seaside`, `/look glass`, `/look plaster` or `/look next` changes the look.
 - `/look auto`, `/look light`, `/look dark` change the mode.
+- `/look off` (or `/look reset`) removes the theme and gives the app its own look back, in this session and the next ones. Picking a look or a mode turns it back on.
 - With [usage-bar](../../mods/usage-bar) installed, the same two dropdowns sit under its pills above the prompt.
 
 Your choice is saved and comes back in every new session.
