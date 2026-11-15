@@ -10,7 +10,7 @@
     {
       "name": "usage-bar",
       "source": "./mods/usage-bar",
-      "description": "5h/7d rate limits with pace markers, session tokens and cost: above the prompt, or in a /usage pane; with theme-studio installed, dropdowns to pick its look and mode"
+      "description": "5h/7d rate limits with pace markers, session tokens and cost: above the prompt, or in a /usage-bar pane; with theme-studio installed, dropdowns to pick its look and mode"
     },
     {
       "name": "theme-arctic",

@@ -271,7 +271,7 @@ export const register: Register = on => {
     await tick()
     // ponytail: minute tick only drives the reset countdown; finer is wasted redraws.
     $.clock.every(60_000, () => void tick())
-    await $.command.register({ name: 'usage', description: 'Show rate limits, tokens and cost in a pane' })
+    await $.command.register({ name: 'usage-bar', description: 'Show rate limits, tokens and cost in a pane' })
     // VS Code has no band above the prompt, so the pane stands in for it there.
     if ((await $.session.surfaces()).includes('vscode')) void openPane($)
     return next(e)
@@ -284,12 +284,12 @@ export const register: Register = on => {
 
   // Surfaces that draw mod UI replace the row's text with live pills; the rest
   // (Remote Control on a phone mirrors text only) show the markdown summary.
-  on('command.run', { command: 'usage' }, async $ => {
+  on('command.run', { command: 'usage-bar' }, async $ => {
     void openPane($)
     return { text: summary(await read($, tokens), await read($, limits), await read($, usd), await read($, now)) }
   })
 
-  on('ui.render', { component: 'CommandOutput', props: { command: 'usage' } }, async ($, e) => {
+  on('ui.render', { component: 'CommandOutput', props: { command: 'usage-bar' } }, async ($, e) => {
     const pills = await currentPills($)
     const columns = Math.max(20, (e.viewport?.columns ?? 80) - 4)
     return e.surface === 'terminal'
