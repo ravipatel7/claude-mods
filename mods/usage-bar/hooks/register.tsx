@@ -240,12 +240,13 @@ const themePicker = async ($: EngineInterface, { Box, Select }: SvgEls) => {
       <Select key="theme-look" label="Theme" value={c.look} options={c.looks.map(l => ({ value: l.id, label: l.label }))} onSelect={look} />
       <Select
         key="theme-mode"
-        label={c.variant === 'day' ? `☀ ${c.variantLabel}` : `☾ ${c.variantLabel}`}
+        label={c.mode === 'off' ? 'Theme off' : c.variant === 'day' ? `☀ ${c.variantLabel}` : `☾ ${c.variantLabel}`}
         value={c.mode}
         options={[
           { value: 'auto', label: `Auto (light ${c.dayStart}:00–${c.nightStart}:00)` },
           { value: 'light', label: 'Always light' },
           { value: 'dark', label: 'Always dark' },
+          { value: 'off', label: 'Off (app default)' },
         ]}
         onSelect={look}
       />

@@ -30,7 +30,7 @@ The mod runs inside Claude Code on the machine where it's installed. The desktop
 
 ## Theme picker
 
-With [theme-studio](../../themes/theme-studio) installed, the band (and the `/usage-bar` pane) gains a second row with two dropdowns: **Theme** picks the look, and the mode dropdown (☀ / ☾ plus the current version's name) picks Auto (switches by local time), Always light or Always dark. They run theme-studio's `/look` command. Without theme-studio the row doesn't appear. Desktop and mobile only; the terminal band is unchanged.
+With [theme-studio](../../themes/theme-studio) installed, the band (and the `/usage-bar` pane) gains a second row with two dropdowns: **Theme** picks the look, and the mode dropdown (☀ / ☾ plus the current version's name) picks Auto (switches by local time), Always light, Always dark or Off (the app's own look). They run theme-studio's `/look` command. Without theme-studio the row doesn't appear. Desktop and mobile only; the terminal band is unchanged.
 
 ## Install
 

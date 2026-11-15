@@ -5,7 +5,7 @@ import { LOOKS, type Look, type VariantName } from './looks'
 
 const CURRENT = { plugin: 'theme-studio', key: 'current' } as const
 const PANE = 'theme-studio'
-const MODES: StudioMode[] = ['auto', 'light', 'dark']
+const MODES: StudioMode[] = ['auto', 'light', 'dark', 'off']
 
 // One palette in both slots, so the chosen variant paints whatever mode the OS is in.
 const forced = (c: ThemeColors): ThemeColors => {
@@ -40,6 +40,20 @@ async function apply($: EngineInterface): Promise<StudioCurrent> {
   const hour = now.getHours() + now.getMinutes() / 60
   const variant: VariantName = mode === 'light' ? 'day' : mode === 'dark' ? 'night' : isDay(hour, dayStart, nightStart) ? 'day' : 'night'
   const v = chosen[variant]
+  const current: StudioCurrent = {
+    look: chosen.id, label: chosen.label, variant, variantLabel: v.label, mode,
+    looks: LOOKS.map(l => ({ id: l.id, label: l.label })), dayStart, nightStart,
+  }
+  timer?.cancel()
+  timer = undefined
+
+  // Off: set nothing. The theme itself is cleared only by `/look off` (a person's ask), never
+  // here, since apply also runs at session start and a clear there would wipe another mod's theme.
+  if (mode === 'off') {
+    $.ui.status(undefined)
+    await $.state.set(CURRENT, current)
+    return current
+  }
 
   // The desktop app draws a still `image` ground blank and strips images embedded in a scene's
   // SVG, so each look is a soft-focus SVG made from its picture (scripts/art-to-scene.py),
@@ -53,14 +67,8 @@ async function apply($: EngineInterface): Promise<StudioCurrent> {
     },
   })
   $.ui.status(set.isDrawn ? undefined : set.reason)
-
-  const current: StudioCurrent = {
-    look: chosen.id, label: chosen.label, variant, variantLabel: v.label, mode,
-    looks: LOOKS.map(l => ({ id: l.id, label: l.label })), dayStart, nightStart,
-  }
   await $.state.set(CURRENT, current)
 
-  timer?.cancel()
   timer = mode === 'auto' ? $.clock.after(msToNextSwitch(now, dayStart, nightStart), () => void apply($)) : undefined
   return current
 }
@@ -77,8 +85,10 @@ async function sceneSvg($: EngineInterface, path: string) {
 }
 
 const describe = (c: StudioCurrent) =>
-  `${c.label} · ${c.variantLabel} (${c.variant === 'day' ? 'light' : 'dark'}), mode ${c.mode}` +
-  (c.mode === 'auto' ? `: light from ${c.dayStart}:00, dark from ${c.nightStart}:00` : '')
+  c.mode === 'off'
+    ? 'theme-studio is off: the app has its own look. /look <name> or /look auto turns it back on.'
+    : `${c.label} · ${c.variantLabel} (${c.variant === 'day' ? 'light' : 'dark'}), mode ${c.mode}` +
+      (c.mode === 'auto' ? `: light from ${c.dayStart}:00, dark from ${c.nightStart}:00` : '')
 
 export const register: Register = (on, options) => {
   dayStart = Number(options.dayStart ?? 7)
@@ -89,7 +99,7 @@ export const register: Register = (on, options) => {
     await $.command.register({
       name: 'look',
       description: 'Pick a theme-studio look or mode (auto switches light/dark by local time)',
-      argumentHint: `[${LOOKS.map(l => l.id).join('|')}|next|auto|light|dark]`,
+      argumentHint: `[${LOOKS.map(l => l.id).join('|')}|next|auto|light|dark|off]`,
     })
     return next(e)
   })
@@ -101,13 +111,21 @@ export const register: Register = (on, options) => {
       const { value } = await $.state.get(CURRENT)
       return { text: value ? describe(value) : 'theme-studio: no look applied yet' }
     }
+    if (arg === 'off' || arg === 'reset') {
+      // The person asked to remove the theme: clear it now, and stay off in later sessions.
+      await $.store.set('mode', 'off')
+      const current = await apply($)
+      await $.theme.clear()
+      return { text: describe(current) }
+    }
     if ((MODES as string[]).includes(arg)) await $.store.set('mode', arg)
-    else if (arg === 'next') {
+    else if (arg === 'next' || LOOKS.some(l => l.id === arg)) {
       const was = await $.store.get('look')
       const i = Math.max(0, LOOKS.findIndex(l => l.id === was))
-      await $.store.set('look', LOOKS[(i + 1) % LOOKS.length]!.id)
-    } else if (LOOKS.some(l => l.id === arg)) await $.store.set('look', arg)
-    else return { text: `Unknown look or mode "${arg}". Try: ${LOOKS.map(l => l.id).join(', ')}, next, auto, light, dark` }
+      await $.store.set('look', arg === 'next' ? LOOKS[(i + 1) % LOOKS.length]!.id : arg)
+      // Picking a look while off turns theming back on.
+      if ((await $.store.get('mode')) === 'off') await $.store.set('mode', 'auto')
+    } else return { text: `Unknown look or mode "${arg}". Try: ${LOOKS.map(l => l.id).join(', ')}, next, auto, light, dark, off` }
     return { text: describe(await apply($)) }
   })
 
@@ -142,6 +160,7 @@ export const register: Register = (on, options) => {
             { value: 'auto', label: `Auto (light ${c.dayStart}:00-${c.nightStart}:00)` },
             { value: 'light', label: 'Always light' },
             { value: 'dark', label: 'Always dark' },
+            { value: 'off', label: 'Off (app default)' },
           ],
           onSelect: v => void $.command.run({ command: 'look', args: v }),
         }),

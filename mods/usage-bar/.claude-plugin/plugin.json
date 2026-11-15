@@ -1,6 +1,6 @@
 {
   "name": "usage-bar",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "author": { "name": "Ravi Patel" },
   "description": "5h/7d rate limits with pace markers, session tokens and cost: above the prompt, or in a /usage-bar pane",
   "types": "./types/index.d.ts"
