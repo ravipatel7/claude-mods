@@ -10,7 +10,43 @@
     {
       "name": "usage-bar",
       "source": "./mods/usage-bar",
-      "description": "5h/7d rate limits with pace markers, session tokens and cost: above the prompt, or in a /usage pane"
+      "description": "5h/7d rate limits with pace markers, session tokens and cost: above the prompt, or in a /usage pane; with theme-studio installed, dropdowns to pick its look and mode"
+    },
+    {
+      "name": "theme-arctic",
+      "source": "./themes/theme-arctic",
+      "description": "Cool blue-gray ice in both modes, with a soft frosted gradient behind the chat",
+      "category": "theme"
+    },
+    {
+      "name": "theme-forest",
+      "source": "./themes/theme-forest",
+      "description": "Moss and fern greens in both modes, with a radial glade behind the chat",
+      "category": "theme"
+    },
+    {
+      "name": "theme-night-sky",
+      "source": "./themes/theme-night-sky",
+      "description": "Dark only: a twinkling starfield with shooting stars behind the conversation",
+      "category": "theme"
+    },
+    {
+      "name": "theme-ocean-tide",
+      "source": "./themes/theme-ocean-tide",
+      "description": "Dark only: slow rolling waves under a moonlit sea behind the conversation",
+      "category": "theme"
+    },
+    {
+      "name": "theme-paper",
+      "source": "./themes/theme-paper",
+      "description": "Warm paper by day, lamp-lit paper by night (desktop and mobile apps)",
+      "category": "theme"
+    },
+    {
+      "name": "theme-studio",
+      "source": "./themes/theme-studio",
+      "description": "Four premium looks (Alpine, Seaside, Glass, Plaster): high-res photographic, painted, abstract and minimal backdrops, each with day and night versions that switch by local time; pick with /look",
+      "category": "theme"
     }
   ]
 }

@@ -28,6 +28,10 @@ Rate-limit pills appear only on a Claude subscription (Pro / Max); the cost pill
 
 The mod runs inside Claude Code on the machine where it's installed. The desktop app and VS Code are *remote surfaces*: they ask that Claude Code what to draw, so there is nothing to install in the extension. Tested 2026-10-03: a phone following a desktop session over Remote Control does not attach as a drawing surface (it only mirrors transcript text), so `/usage` falls back to its text summary there.
 
+## Theme picker
+
+With [theme-studio](../../themes/theme-studio) installed, the band (and the `/usage` pane) gains a second row with two dropdowns: **Theme** picks the look, and the mode dropdown (☀ / ☾ plus the current version's name) picks Auto (switches by local time), Always light or Always dark. They run theme-studio's `/look` command. Without theme-studio the row doesn't appear. Desktop and mobile only; the terminal band is unchanged.
+
 ## Install
 
 Requires Claude Code 2.1.286 or newer.
