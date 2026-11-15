@@ -9,7 +9,7 @@ Four premium looks for the Claude desktop and mobile apps. Each is a high-resolu
 | Glass | Abstract | Pearl: iridescent glass ribbons on white | Obsidian: dark glass with teal and violet edges |
 | Plaster | Moody minimal | Morning light: a soft shadow sweeping across plaster | Lamplight: a single warm lamp in the dark |
 
-The art was AI-generated for this mod and is drawn as a **soft-focus scene**: a blurred grid of the picture's colors, like a wallpaper seen through frosted glass. The desktop app can't show photos behind the chat today: it leaves a still `image` backdrop blank and strips images embedded in a scene. `scripts/art-to-scene.py <image> <out.svg>` turns any picture into one of these scenes.
+The art was AI-generated for this mod and is drawn as a **soft-focus scene**: each row of the picture becomes a smooth color gradient, and the rows fade into each other, like a wallpaper seen through frosted glass. The desktop app can't show photos behind the chat today: it leaves a still `image` backdrop blank, strips images embedded in a scene, and drops SVG filters such as blur. `scripts/art-to-scene.py <image> <out.svg>` turns any picture into one of these scenes.
 
 ## Pick a look
 
